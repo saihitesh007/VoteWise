@@ -1,0 +1,106 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: light;
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  html.dark {
+    color-scheme: dark;
+  }
+
+  body {
+    @apply bg-surface-light text-ink-primary antialiased dark:bg-surface-dark dark:text-ink-onDark;
+    font-family: "Segoe UI", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+  }
+
+  h1 {
+    @apply text-gray-900 dark:text-white;
+  }
+
+  h2 {
+    @apply text-gray-800 dark:text-gray-100;
+  }
+
+  h3 {
+    @apply text-gray-700 dark:text-gray-200;
+  }
+
+  p {
+    @apply text-gray-600 dark:text-gray-300;
+  }
+
+  a {
+    @apply text-brand-orange underline-offset-2 hover:text-[#e55a1f] hover:underline;
+  }
+
+  button,
+  input,
+  textarea,
+  select {
+    @apply outline-none;
+  }
+
+  ::selection {
+    background: rgba(255, 107, 43, 0.2);
+  }
+
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: #94a3b8;
+    border-radius: 9999px;
+  }
+
+  .dark ::-webkit-scrollbar-thumb {
+    background: #475569;
+  }
+
+  *,
+  *::before,
+  *::after {
+    transition-property: color, background-color, border-color, transform, box-shadow, opacity;
+    transition-duration: 150ms;
+    transition-timing-function: ease;
+  }
+}
+
+@layer components {
+  .focus-ring {
+    @apply focus:outline-none focus-visible:ring-2 focus-visible:ring-[rgba(255,107,43,0.2)] focus-visible:ring-offset-2 focus-visible:ring-offset-white dark:focus-visible:ring-offset-surface-dark;
+  }
+
+  .input-shell {
+    @apply rounded-lg border border-gray-300 px-4 py-2.5 dark:border-gray-600;
+    @apply focus:border-brand-orange focus:ring-2 focus:ring-[rgba(255,107,43,0.2)];
+  }
+
+  .btn-primary {
+    @apply focus-ring rounded-full bg-brand-orange text-white shadow-sm hover:-translate-y-0.5 hover:bg-[#e55a1f] hover:shadow-md active:scale-[0.97];
+    transition-duration: 180ms;
+  }
+
+  .btn-secondary {
+    @apply focus-ring rounded-full border-2 border-brand-orange bg-transparent text-brand-orange hover:-translate-y-0.5 hover:bg-orange-50 active:scale-[0.97] dark:hover:bg-orange-950/20;
+    transition-duration: 180ms;
+  }
+
+  .btn-ghost {
+    @apply focus-ring rounded-full border border-gray-300 bg-transparent text-gray-700 hover:-translate-y-0.5 hover:bg-gray-100 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-800;
+  }
+}

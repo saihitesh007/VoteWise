@@ -1,0 +1,42 @@
+{
+  "nav": {
+    "home": "Home",
+    "learn": "Learn",
+    "quiz": "Quiz",
+    "chat": "Ask AI",
+    "glossary": "Glossary"
+  },
+  "hero": {
+    "title": "Learn How India Votes",
+    "subtitle": "Understand the election process, your rights, and how to participate",
+    "cta": "Start Learning"
+  },
+  "journey": {
+    "title": "Your Voter Journey",
+    "step": "Step"
+  },
+  "quiz": {
+    "title": "Test Your Knowledge",
+    "start": "Start Quiz",
+    "next": "Next",
+    "score": "Your Score",
+    "restart": "Try Again"
+  },
+  "chat": {
+    "title": "Ask VoteBot",
+    "placeholder": "Ask anything about elections...",
+    "send": "Send",
+    "thinking": "Thinking..."
+  },
+  "glossary": {
+    "title": "Election Glossary",
+    "search": "Search terms..."
+  },
+  "evm": {
+    "title": "How the EVM Works"
+  },
+  "tts": {
+    "listen": "Listen",
+    "stop": "Stop"
+  }
+}

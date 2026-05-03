@@ -1,0 +1,51 @@
+export const steps = [
+  {
+    id: 1,
+    icon: '📋',
+    title: 'Check Eligibility',
+    description: 'You must be an Indian citizen, 18+ years old, and resident of your constituency to vote.',
+    tip: 'NRIs can also register under overseas voters category',
+  },
+  {
+    id: 2,
+    icon: '📝',
+    title: 'Register to Vote',
+    description: 'Fill Form 6 online at voters.eci.gov.in or visit your local BLO (Booth Level Officer).',
+    tip: 'Registration closes 30 days before election date',
+  },
+  {
+    id: 3,
+    icon: '🪪',
+    title: 'Get Your Voter ID',
+    description: 'Receive your EPIC (Electors Photo Identity Card) by post or download e-EPIC from the NVSP portal.',
+    tip: 'You can also use 12 other documents as identity proof on voting day',
+  },
+  {
+    id: 4,
+    icon: '🔍',
+    title: 'Find Your Polling Booth',
+    description: 'Check your polling booth location on the ECI website using your voter ID number or name.',
+    tip: 'Booths are usually within 2km of your residence',
+  },
+  {
+    id: 5,
+    icon: '🗳',
+    title: 'Vote on Election Day',
+    description: 'Arrive at your polling booth, show your ID, get your finger inked, and press the button on the EVM for your chosen candidate.',
+    tip: 'You can vote any time during polling hours (usually 7AM–6PM)',
+  },
+  {
+    id: 6,
+    icon: '🧾',
+    title: 'VVPAT Verification',
+    description: 'After pressing the EVM button, a slip appears on the VVPAT screen for 7 seconds showing your vote. This confirms your vote was recorded correctly.',
+    tip: 'VVPAT = Voter Verifiable Paper Audit Trail',
+  },
+  {
+    id: 7,
+    icon: '📊',
+    title: 'Result Declaration',
+    description: 'Votes are counted on counting day. EVMs are opened, votes tallied, and results declared by the Returning Officer.',
+    tip: 'Results are usually declared within 24 hours of counting start',
+  },
+];
