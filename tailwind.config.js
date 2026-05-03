@@ -30,7 +30,9 @@ export default {
         },
       },
       fontFamily: {
-        sans: ['Inter', 'Segoe UI', 'system-ui', '-apple-system', 'sans-serif'],
+        sans: ['Inter', 'sans-serif'],
+        devanagari: ['Noto Sans Devanagari', 'sans-serif'],
+        telugu: ['Noto Sans Telugu', 'sans-serif'],
       },
       boxShadow: {
         soft: '0 20px 45px -20px rgba(15, 23, 42, 0.18)',

@@ -1,4 +1,6 @@
 import { GoogleGenerativeAI } from '@google/generative-ai';
+import { trace } from 'firebase/performance';
+import { perf } from './firebase';
 
 const SYSTEM_INSTRUCTION = `
 You are VoteBot, an election education assistant for Indian citizens.
@@ -37,7 +39,11 @@ export async function askVoteBot(message, history = []) {
     return "Sorry, I couldn't connect. Please check your API configuration.";
   }
 
+  const geminiTrace = perf ? trace(perf, 'gemini_api_call') : null;
+
   try {
+    geminiTrace?.start();
+
     const model = client.getGenerativeModel({
       model: 'gemini-flash-latest',
       systemInstruction: SYSTEM_INSTRUCTION,
@@ -49,5 +55,7 @@ export async function askVoteBot(message, history = []) {
   } catch (error) {
     console.error('[VoteBot Error]:', error);
     return "Sorry, I couldn't connect. Please try again.";
+  } finally {
+    geminiTrace?.stop();
   }
 }

@@ -1,6 +1,8 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
+import { logEvent } from 'firebase/analytics';
 import { useTranslation } from 'react-i18next';
 import { terms } from '../../data/glossaryTerms';
+import { analytics } from '../../services/firebase';
 import TTSButton from '../common/TTSButton';
 
 const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
@@ -26,6 +28,18 @@ export default function Glossary() {
   const { t } = useTranslation();
   const [search, setSearch] = useState('');
   const [openTerm, setOpenTerm] = useState(null);
+
+  useEffect(() => {
+    if (!analytics) return;
+    const trimmedSearch = search.trim();
+    if (!trimmedSearch) return;
+
+    const timeoutId = window.setTimeout(() => {
+      logEvent(analytics, 'glossary_searched', { term: trimmedSearch });
+    }, 400);
+
+    return () => window.clearTimeout(timeoutId);
+  }, [search]);
 
   const filteredTerms = useMemo(() => {
     const sortedTerms = [...terms].sort((a, b) => a.term.localeCompare(b.term));
@@ -95,7 +109,13 @@ export default function Glossary() {
                     <article key={entry.term} className="rounded-lg border border-gray-200 bg-gray-50 dark:border-white/10 dark:bg-surface-darkCard hover:border-brand-orange hover:bg-orange-50 dark:hover:bg-surface-darkHover">
                       <button
                         type="button"
-                        onClick={() => setOpenTerm(expanded ? null : entry.term)}
+                        onClick={() => {
+                          const nextTerm = expanded ? null : entry.term;
+                          setOpenTerm(nextTerm);
+                          if (nextTerm && analytics) {
+                            logEvent(analytics, 'glossary_term_opened', { term: nextTerm });
+                          }
+                        }}
                         className={`focus-ring flex w-full items-center justify-between gap-4 px-5 py-4 text-left ${expanded ? 'border-l-4 border-brand-orange' : ''}`}
                         aria-expanded={expanded}
                       >

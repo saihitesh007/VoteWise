@@ -1,8 +1,10 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { motion } from 'framer-motion';
+import { logEvent } from 'firebase/analytics';
 import { useTranslation } from 'react-i18next';
 import { askVoteBot } from '../../services/gemini';
 import { updateUserStats } from '../../services/firestoreService';
+import { analytics } from '../../services/firebase';
 import ChatMessage from './ChatMessage';
 
 const suggestions = [
@@ -29,6 +31,11 @@ export default function ChatBot() {
   const containerRef = useRef(null);
 
   useEffect(() => {
+    if (!analytics) return;
+    logEvent(analytics, 'chatbot_opened');
+  }, []);
+
+  useEffect(() => {
     containerRef.current?.scrollTo({
       top: containerRef.current.scrollHeight,
       behavior: 'smooth',
@@ -51,7 +58,7 @@ export default function ChatBot() {
     if (!message || isLoading) return;
 
     const now = Date.now();
-    if (now - lastSentAt < 2000) return; // rate limit: 1 request per 2s
+    if (now - lastSentAt < 2000) return;
 
     setLastSentAt(now);
     setIsLoading(true);
@@ -63,7 +70,10 @@ export default function ChatBot() {
     ];
     setMessages(nextMessages);
 
-    // Track message in Firestore (fire-and-forget — non-blocking)
+    if (analytics) {
+      logEvent(analytics, 'chatbot_message_sent');
+    }
+
     updateUserStats();
 
     const reply = await askVoteBot(message, history);

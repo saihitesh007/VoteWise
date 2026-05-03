@@ -1,7 +1,9 @@
 import { AnimatePresence, motion } from 'framer-motion';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { logEvent } from 'firebase/analytics';
 import { useTranslation } from 'react-i18next';
 import { steps } from '../../data/journeySteps';
+import { analytics } from '../../services/firebase';
 import TTSButton from '../common/TTSButton';
 import StepCard from './StepCard';
 
@@ -65,11 +67,29 @@ const localizeStep = (step, language) => ({
 export default function VoterJourney() {
   const { t, i18n } = useTranslation();
   const [activeStep, setActiveStep] = useState(0);
+  const hasLoggedCompletion = useRef(false);
   const localizedSteps = useMemo(
     () => steps.map((step) => localizeStep(step, i18n.language?.slice(0, 2))),
     [i18n.language]
   );
   const currentStep = localizedSteps[activeStep];
+
+  useEffect(() => {
+    if (!analytics) return;
+    logEvent(analytics, 'journey_step_viewed', { step: activeStep + 1 });
+  }, [activeStep]);
+
+  useEffect(() => {
+    if (!analytics || activeStep !== localizedSteps.length - 1 || hasLoggedCompletion.current) return;
+    logEvent(analytics, 'journey_completed');
+    hasLoggedCompletion.current = true;
+  }, [activeStep, localizedSteps.length]);
+
+  useEffect(() => {
+    if (activeStep !== localizedSteps.length - 1) {
+      hasLoggedCompletion.current = false;
+    }
+  }, [activeStep, localizedSteps.length]);
 
   return (
     <section className="rounded-[2rem] border border-gray-200 bg-white p-6 shadow-soft dark:border-gray-700 dark:bg-gray-800">

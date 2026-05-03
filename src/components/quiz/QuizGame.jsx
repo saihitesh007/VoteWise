@@ -1,7 +1,9 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
+import { logEvent } from 'firebase/analytics';
 import { useTranslation } from 'react-i18next';
 import { questions } from '../../data/quizQuestions';
+import { analytics } from '../../services/firebase';
 import ScoreCard from './ScoreCard';
 
 export const shuffleQuestions = (items) => {
@@ -27,6 +29,7 @@ export default function QuizGame() {
   const [timeLeft, setTimeLeft] = useState(QUESTION_TIME_LIMIT);
   const [highScore, setHighScore] = useState(() => Number(localStorage.getItem('votewise-highscore') || 0));
   const [revealed, setRevealed] = useState(false);
+  const hasLoggedCompletion = useRef(false);
 
   const currentQuestion = questionSet[currentIndex];
   const isFinished = currentIndex >= questionSet.length;
@@ -62,6 +65,14 @@ export default function QuizGame() {
     }
   }, [score, highScore]);
 
+  useEffect(() => {
+    if (!quizStarted || !isFinished || hasLoggedCompletion.current || !analytics) return;
+
+    const percentage = Math.round((score / questionSet.length) * 100);
+    logEvent(analytics, 'quiz_completed', { score, percentage });
+    hasLoggedCompletion.current = true;
+  }, [isFinished, questionSet.length, quizStarted, score]);
+
   const scoreLabel = useMemo(() => `${score}/${questions.length} correct`, [score]);
 
   const handleAnswer = (optionIndex) => {
@@ -70,6 +81,12 @@ export default function QuizGame() {
     setRevealed(true);
     const isCorrect = optionIndex === currentQuestion.answer;
     setScore((current) => applyScore(current, isCorrect));
+    if (analytics) {
+      logEvent(analytics, 'question_answered', {
+        questionId: currentQuestion.id,
+        correct: isCorrect,
+      });
+    }
   };
 
   const handleNext = () => {
@@ -87,6 +104,18 @@ export default function QuizGame() {
     setScore(0);
     setTimeLeft(QUESTION_TIME_LIMIT);
     setRevealed(false);
+    hasLoggedCompletion.current = false;
+    if (analytics) {
+      logEvent(analytics, 'quiz_started');
+    }
+  };
+
+  const startQuiz = () => {
+    setQuizStarted(true);
+    hasLoggedCompletion.current = false;
+    if (analytics) {
+      logEvent(analytics, 'quiz_started');
+    }
   };
 
   if (!quizStarted) {
@@ -94,7 +123,7 @@ export default function QuizGame() {
       <section className="rounded-[2rem] border border-gray-200 bg-surface-card p-8 text-center shadow-soft dark:border-white/10 dark:bg-surface-darkCard">
         <h1 className="text-3xl font-bold"> {t('quiz.title')} </h1>
         <p className="mt-4 text-gray-600 dark:text-gray-300">Answer 15 election questions with a 15-second timer on each one.</p>
-        <button type="button" onClick={() => setQuizStarted(true)} className="btn-primary mt-8 px-8 py-3.5 font-bold">
+        <button type="button" onClick={startQuiz} className="btn-primary mt-8 px-8 py-3.5 font-bold">
           {t('quiz.start')}
         </button>
       </section>

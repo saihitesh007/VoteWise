@@ -1,4 +1,6 @@
-import { Routes, Route } from 'react-router-dom';
+import { useEffect } from 'react';
+import { logEvent } from 'firebase/analytics';
+import { Routes, Route, useLocation } from 'react-router-dom';
 import Navbar from './components/layout/Navbar';
 import Footer from './components/layout/Footer';
 import Home from './pages/Home';
@@ -6,8 +8,21 @@ import Learn from './pages/Learn';
 import Quiz from './pages/Quiz';
 import ChatPage from './pages/ChatPage';
 import GlossaryPage from './pages/Glossary';
+import { analytics } from './services/firebase';
 
 export default function App() {
+  const location = useLocation();
+
+  useEffect(() => {
+    if (!analytics) return;
+
+    logEvent(analytics, 'page_view', {
+      page_title: document.title,
+      page_location: window.location.href,
+      page_path: `${location.pathname}${location.search}`,
+    });
+  }, [location]);
+
   return (
     <div className="min-h-screen bg-gray-50 text-gray-900 transition-colors dark:bg-gray-900 dark:text-gray-100">
       <a

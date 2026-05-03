@@ -1,7 +1,9 @@
 import { AnimatePresence, motion } from 'framer-motion';
 import { useEffect, useState } from 'react';
+import { fetchAndActivate, getString } from 'firebase/remote-config';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
+import { remoteConfig } from '../services/firebase';
 
 const stats = [
   { value: '900M+', label: 'Eligible voters in India', icon: '👥' },
@@ -33,6 +35,7 @@ const howItWorks = [
 export default function Home() {
   const { t } = useTranslation();
   const [factIndex, setFactIndex] = useState(0);
+  const [welcomeMessage, setWelcomeMessage] = useState('Learn how India votes!');
 
   useEffect(() => {
     const interval = window.setInterval(() => {
@@ -40,6 +43,30 @@ export default function Home() {
     }, 5000);
 
     return () => window.clearInterval(interval);
+  }, []);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    const loadWelcomeMessage = async () => {
+      if (!remoteConfig) return;
+
+      try {
+        await fetchAndActivate(remoteConfig);
+        const remoteMessage = getString(remoteConfig, 'welcome_message');
+        if (!cancelled && remoteMessage) {
+          setWelcomeMessage(remoteMessage);
+        }
+      } catch (error) {
+        console.warn('[Remote Config]: Failed to fetch welcome message.', error);
+      }
+    };
+
+    loadWelcomeMessage();
+
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   return (
@@ -79,7 +106,7 @@ export default function Home() {
             transition={{ delay: 0.3 }}
             className="mt-6 max-w-xl text-lg leading-8 text-ink-secondary dark:text-ink-onDark"
           >
-            Understand your rights, the election process, and how every vote matters
+            {welcomeMessage || t('hero.subtitle')}
           </motion.p>
 
           <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }} className="mt-8 flex flex-wrap gap-4">

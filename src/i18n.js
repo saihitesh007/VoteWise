@@ -2,6 +2,22 @@ import i18n from 'i18next';
 import LanguageDetector from 'i18next-browser-languagedetector';
 import { initReactI18next } from 'react-i18next';
 
+const languageFontClassMap = {
+  en: 'font-sans',
+  hi: 'font-devanagari',
+  te: 'font-telugu',
+};
+
+const applyLanguageFont = (language) => {
+  if (typeof document === 'undefined') return;
+
+  const normalizedLanguage = language?.slice(0, 2) || 'en';
+  const nextFontClass = languageFontClassMap[normalizedLanguage] || languageFontClassMap.en;
+  document.body.classList.remove('font-sans', 'font-devanagari', 'font-telugu');
+  document.body.classList.add(nextFontClass);
+  document.body.dataset.language = normalizedLanguage;
+};
+
 const testResources = {
   en: {
     translation: {
@@ -59,6 +75,11 @@ if (import.meta.env.MODE === 'test') {
   });
 } else {
   i18n.use(backend).use(LanguageDetector).use(initReactI18next).init(baseConfig);
+}
+
+if (typeof window !== 'undefined') {
+  i18n.on('languageChanged', applyLanguageFont);
+  applyLanguageFont(i18n.resolvedLanguage || i18n.language);
 }
 
 export default i18n;
