@@ -16,7 +16,7 @@ VoteWise is a production-ready web application designed to educate Indian citize
 | Text-to-Speech | Web Speech API (browser built-in, no external library) |
 | Persistence | localStorage (theme, language, high score) |
 | Animations | Framer Motion |
-| Deployment | Docker multi-stage → Google Cloud Run (port 8080) |
+| Deployment | Vercel / Docker + Cloud Run |
 | Tests | Vitest + @testing-library/react |
 
 ## 3. Features
@@ -31,13 +31,28 @@ VoteWise is a production-ready web application designed to educate Indian citize
 - **Text-to-Speech** — Web Speech API with correct locale (en-IN / hi-IN / te-IN) at 0.9 speed.
 - **Accessibility** — Skip-to-main link, aria-labels, aria-current, keyboard navigation, visible focus rings, hierarchical headings, sufficient contrast.
 
-## 4. Google Services Used
+## 4. Environment Variables
 
-- **Gemini API** — Powers the VoteBot chatbot via `@google/generative-ai` npm package. Model: `gemini-1.5-flash`.
-- **Google Cloud Run** — Intended deployment target. The Docker image listens on port 8080 (Cloud Run default).
-- **Google Fonts** — Inter font loaded via CDN in `index.html` for premium typography.
+To run this project, you will need to add the following environment variables to your `.env` file or deployment settings:
 
-## 5. Local Setup
+| Variable | Required | Description |
+|---|---|---|
+| `VITE_GEMINI_API_KEY` | Yes | Your Google Gemini API key from [Google AI Studio](https://aistudio.google.com/) |
+| `VITE_FIREBASE_API_KEY` | Yes | Firebase API Key |
+| `VITE_FIREBASE_AUTH_DOMAIN` | Yes | Firebase Auth Domain |
+| `VITE_FIREBASE_PROJECT_ID` | Yes | Firebase Project ID |
+| `VITE_FIREBASE_STORAGE_BUCKET` | Yes | Firebase Storage Bucket |
+| `VITE_FIREBASE_MESSAGING_SENDER_ID` | Yes | Firebase Messaging Sender ID |
+| `VITE_FIREBASE_APP_ID` | Yes | Firebase App ID |
+
+## 5. Deployment (Vercel) - Recommended
+
+1. Push your code to GitHub.
+2. Go to [Vercel](https://vercel.com/) and import your project.
+3. In the **Environment Variables** section, add all the keys listed in the table above.
+4. Click **Deploy**. Vercel will automatically detect the Vite build settings.
+
+## 6. Local Setup
 
 ```bash
 # 1. Clone the repository
@@ -49,127 +64,13 @@ npm install
 
 # 3. Configure environment variables
 cp .env.example .env
-# Edit .env and add your Gemini API key:
-# VITE_GEMINI_API_KEY=your_actual_key_here
+# Edit .env and add your actual keys
 
 # 4. Start the development server
 npm run dev
 ```
 
 The app will be available at **http://localhost:5173**
-
-## 6. Environment Variables
-
-| Variable | Required | Description |
-|---|---|---|
-| `VITE_GEMINI_API_KEY` | Yes | Your Google Gemini API key from [Google AI Studio](https://aistudio.google.com/) |
-
-> ⚠️ **Never commit `.env` to version control.** It is already listed in `.gitignore`. Only commit `.env.example`.
-
-## 7. Deployment (Docker + Cloud Run)
-
-### Build and run locally with Docker
-
-```bash
-# Build the image
-docker build -t votewise .
-
-# Run locally on port 8080
-docker run -p 8080:8080 votewise
-```
-
-### Deploy to Google Cloud Run
-
-```bash
-# Authenticate
-gcloud auth login
-
-# Set your project
-gcloud config set project YOUR_PROJECT_ID
-
-# Build and push to Google Artifact Registry
-gcloud builds submit --tag gcr.io/YOUR_PROJECT_ID/votewise
-
-# Deploy to Cloud Run
-gcloud run deploy votewise \
-  --image gcr.io/YOUR_PROJECT_ID/votewise \
-  --platform managed \
-  --region asia-south1 \
-  --allow-unauthenticated \
-  --port 8080 \
-  --set-env-vars VITE_GEMINI_API_KEY=your_key_here
-```
-
-> **Note:** Since `VITE_GEMINI_API_KEY` is a build-time variable (not a runtime secret), it must be baked into the image at build time. For production, consider using a backend proxy to avoid exposing the key in the client bundle.
-
-## 8. Accessibility Features
-
-- **Skip-to-main-content** link at the very top of every page
-- **`aria-label`** on all interactive elements (buttons, inputs, nav links)
-- **`aria-current="page"`** on the active navigation link
-- **`aria-expanded`** on accordion/expandable elements (Glossary, mobile menu)
-- **`aria-selected`** on tab-like elements (fact carousel dots)
-- **Keyboard navigation** — Tab, Enter, Escape, arrow keys all work correctly
-- **Visible focus rings** — 2px outline on all focusable elements
-- **Hierarchical headings** — Single `<h1>` per page, then `<h2>`, `<h3>`
-- **Color is never the only indicator** — Icons and text always accompany color coding
-- **Sufficient contrast** — Color palette chosen for ≥ 4.5:1 contrast ratio
-- **`<label>` for all inputs** — Chat textarea and Glossary search both have visible or sr-only labels
-
-## 9. Multilanguage Support
-
-Three languages are supported and can be switched at any time via the Language Switcher in the Navbar and Footer:
-
-| Language | Code | Native Name |
-|---|---|---|
-| English | `en` | English |
-| Hindi | `hi` | हिंदी |
-| Telugu | `te` | తెలుగు |
-
-Language preference is saved to `localStorage` key `votewise-lang` and restored on next visit.
-
-Text-to-speech uses the correct locale per language:
-- English → `en-IN`
-- Hindi → `hi-IN`
-- Telugu → `te-IN`
-
-## 10. Running Tests
-
-```bash
-npm run test
-```
-
-Four tests are included:
-
-| File | Tests |
-|---|---|
-| `quiz.test.js` | Shuffling returns same 15 questions; score increments correctly; timer expiry advances question |
-| `tts.test.js` | Hook returns speak/stop/isSpeaking; speak() called with correct language code |
-
-## Project Structure
-
-```
-votewise/
-├── public/locales/{en,hi,te}/translation.json   # i18n translation files
-├── src/
-│   ├── main.jsx / App.jsx / i18n.js / styles.css
-│   ├── components/
-│   │   ├── layout/    Navbar.jsx  Footer.jsx
-│   │   ├── chatbot/   ChatBot.jsx  ChatMessage.jsx
-│   │   ├── quiz/      QuizGame.jsx  ScoreCard.jsx
-│   │   ├── journey/   VoterJourney.jsx  StepCard.jsx
-│   │   ├── evm/       EVMExplainer.jsx
-│   │   ├── glossary/  Glossary.jsx
-│   │   └── common/    TTSButton.jsx  DarkModeToggle.jsx  LanguageSwitcher.jsx
-│   ├── pages/         Home  Learn  Quiz  ChatPage  Glossary
-│   ├── services/      gemini.js
-│   ├── hooks/         useTheme.js  useTTS.js  useLanguage.js
-│   └── data/          quizQuestions.js  journeySteps.js  glossaryTerms.js
-├── .env.example
-├── Dockerfile
-├── nginx.conf
-└── README.md
-```
 
 ---
 
